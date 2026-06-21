@@ -1,0 +1,3 @@
+[submodule "client/src/vendor/chart.xkcd-src"]
+	path = client/src/vendor/chart.xkcd-src
+	url = https://github.com/nerodoescode/chart.xkcd
