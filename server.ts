@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = config.server.port;
 
   // Run DB Migrations
   if (process.env.DATABASE_URL) {

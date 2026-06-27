@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            nvm use 20
+
+            cd "${{ secrets.DEPLOY_DIR }}"
+            # reset --hard (not pull) so the box exactly mirrors origin:
+            # adopts rewritten history and discards any server-side hand-edits
+            git fetch origin master
+            git reset --hard origin/master
+            git submodule update --init --recursive
+
+            # Server runtime deps + build tooling (root devDeps include vite)
+            npm ci
+            # Frontend deps (vue, chart.js, …) — needed for the root vite build
+            npm --prefix client ci
+            # Builds client/ -> repo-root/dist (what the server serves in production)
+            npm run build
+
+            sudo systemctl restart kalgrist
