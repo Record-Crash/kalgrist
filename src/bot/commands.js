@@ -7,6 +7,9 @@ import * as bets from "../db/bets.js";
 import * as guildSettings from "../db/guild_settings.js";
 import * as bannedWords from "../db/banned_words.js";
 
+// Application emoji (owned by the bot, usable in any guild)
+const GRIST = '<:grist:1520392778671067207>';
+
 const commands = [
   new SlashCommandBuilder()
     .setName('balance')
@@ -162,7 +165,7 @@ async function buildLeaderboardMessage(guildId, page) {
   ]);
 
   const totalPages = Math.ceil(total / LB_PAGE_SIZE);
-  const lines = lb.map((r, i) => `${offset + i + 1}. <@${r.discord_id}> — **${r.balance}** <:grist:1496616949168476271>`);
+  const lines = lb.map((r, i) => `${offset + i + 1}. <@${r.discord_id}> — **${r.balance}** ${GRIST}`);
 
   const embed = new EmbedBuilder()
     .setTitle('Leaderboard')
@@ -254,7 +257,7 @@ async function handleInteraction(interaction) {
 
   if (commandName === 'balance') {
     const balance = await users.getBalance(discordUser.id, guild.id);
-    return interaction.reply({ content: `Your balance: **${balance}** <:grist:1496616949168476271>`, ephemeral: true });
+    return interaction.reply({ content: `Your balance: **${balance}** ${GRIST}`, ephemeral: true });
   }
 
   if (commandName === 'leaderboard') {
@@ -269,7 +272,7 @@ async function handleInteraction(interaction) {
     const msg = await buildLeaderboardMessage(guild.id, page);
 
     if (msg.total === 0) {
-      return interaction.reply({ content: 'No one has earned <:grist:1496616949168476271> yet!', allowedMentions: { parse: [] } });
+      return interaction.reply({ content: `No one has earned ${GRIST} yet!`, allowedMentions: { parse: [] } });
     }
     if (page > msg.totalPages) {
       return interaction.reply({ content: `Page ${page} doesn't exist. There are only ${msg.totalPages} page(s).`, ephemeral: true });
@@ -477,7 +480,7 @@ async function handleInteraction(interaction) {
 
     const user = await users.getOrCreate(targetUser.id, guild.id, targetUser.username, targetUser.displayAvatarURL({ size: 64 }));
     await users.addBalance(user.id, amount, 'mod_give', discordUser.id);
-    return interaction.reply({ content: `Gave **${amount}** <:grist:1496616949168476271> to <@${targetUser.id}>.`, allowedMentions: { parse: [] } });
+    return interaction.reply({ content: `Gave **${amount}** ${GRIST} to <@${targetUser.id}>.`, allowedMentions: { parse: [] } });
   }
 
   if (commandName === 'post-play-message') {
@@ -493,7 +496,7 @@ async function handleInteraction(interaction) {
 
     const embed = new EmbedBuilder()
       .setTitle('Guild Prediction Market')
-      .setDescription('Make predictions, place bets with <:grist:1496616949168476271>, and climb the leaderboard!\n\nClick the button below to launch the app.')
+      .setDescription(`Make predictions, place bets with ${GRIST}, and climb the leaderboard!\n\nClick the button below to launch the app.`)
       .setColor(0x5865F2);
 
     const button = new ButtonBuilder()
