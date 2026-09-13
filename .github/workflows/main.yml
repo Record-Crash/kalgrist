@@ -19,7 +19,8 @@ jobs:
             set -e
             export NVM_DIR="$HOME/.nvm"
             source "$NVM_DIR/nvm.sh"
-            nvm use 20
+            nvm install 22 --no-progress
+            nvm use 22
 
             cd "${{ secrets.DEPLOY_DIR }}"
             # reset --hard (not pull) so the box exactly mirrors origin:
